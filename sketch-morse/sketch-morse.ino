@@ -1,4 +1,3 @@
-#include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
 #include "CustomKeypad.h"
 #define deltaTime(val) (millis()-val)
