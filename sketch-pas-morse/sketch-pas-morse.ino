@@ -96,6 +96,12 @@ void loop() {
         valide = true;
         digitalWrite(ledRouge, LOW);
         digitalWrite(ledVerte, HIGH);
+
+        int pos = 8-(input_password.length())/2;
+        lcd.setCursor(pos, 1);
+        lcd.print(input_password);
+        delay(60000);
+        resetFunc();
       } else if (input_password == "*******") {
         resetFunc();
       } else {
@@ -155,7 +161,7 @@ void beep_beep() {
     if (timingUpBomb < 125) {
       ledcWrite(0, 0);
       if (startTime != 0) {
-        delay(10000); // 60s
+        delay(60000); // 60s
       }
       resetFunc();
     }
