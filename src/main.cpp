@@ -126,11 +126,11 @@ void stateMachineTask(void * parameter) {
 // This function is an utility function to play a beep and beep the light
 // Using ledcWriteTone and ledcWrite
 void beep(int channel, int duration, note_t note, uint8_t octave = 4) {
-  digitalWrite(RED_LIGHT_PIN, LOW);
-  // ledcWriteNote(channel, note, octave);
+  digitalWrite(RED_LIGHT_PIN, HIGH);
+  ledcWriteNote(channel, note, octave);
   vTaskDelay(duration / portTICK_PERIOD_MS);
   ledcWrite(channel, 0);
-  digitalWrite(RED_LIGHT_PIN, HIGH);
+  digitalWrite(RED_LIGHT_PIN, LOW);
 }
 
 // Beep only when in active state
@@ -163,6 +163,18 @@ void handleKeypadEvent() {
 
   Serial.print("Key pressed: ");
   Serial.println(key);
+
+  if (key == '#') {
+    if (userInput.length() == 0) {
+      return;
+    }
+    userInput = userInput.substring(0, userInput.length() - 1);
+    updateLCD(); 
+    return;
+  }
+
+  // Small beep
+  beep(BUZZER_CHANNEL, 20, NOTE_C, 5);
 
   userInput += key;
   updateLCD();
