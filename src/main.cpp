@@ -8,6 +8,8 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 
+#include <Preferences.h>
+
 // Definitions
 #define RED_LIGHT_PIN 5
 #define GREEN_LIGHT_PIN 18
@@ -42,6 +44,8 @@ String username = "";
 String userInput = "";
 char lastKey = 'N';
 
+Preferences prefs;
+
 BLEServer *bleServer = NULL;
 BLECharacteristic stateChar(STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
 BLECharacteristic usernameChar(USERNAME_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
@@ -60,6 +64,7 @@ void handleKeypadEvent();
 void updateLCD();
 void updateBLE();
 void setupBLE();
+void setupPreferences();
 
 // This represent what to do when transitioning
 // Possible transitions are the following:
@@ -233,6 +238,7 @@ class PasswordCallbacks: public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     if (value.length() > 0) {
       password = value.c_str();
+      prefs.putString("password", password); 
       Serial.print("New password: ");
       Serial.println(password);
     }
@@ -244,6 +250,7 @@ class UsernameCallbacks: public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     if (value.length() > 0) {
       username = value.c_str();
+      prefs.putString("username", username); 
       Serial.print("New username: ");
       Serial.println(username);
     }
@@ -276,6 +283,17 @@ void setupBLE() {
   pAdvertising->setMinPreferred(0x06);
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
+}
+
+void setupPreferences() {
+  prefs.begin("fake-bomb", false);
+  username = prefs.getString("username", "");
+  password = prefs.getString("password", "1075043");
+
+  Serial.print("Loaded username: ");
+  Serial.println(username);
+  Serial.print("Loaded password: ");
+  Serial.println(password);
 }
 
 void setup() {
@@ -315,6 +333,9 @@ void setup() {
   // Setup the BLE server, one characteristic for the password (read/write)
   // and one characteristic for the state (read only)
   setupBLE();
+
+  Serial.println("Setup Preferences");
+  setupPreferences();
 
   Serial.println("Setup tasks");
 
